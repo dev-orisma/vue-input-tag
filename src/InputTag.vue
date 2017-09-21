@@ -24,6 +24,9 @@
       onChange: {
         type: Function
       },
+      onInput: {
+        type: Function
+      },
       readOnly: {
         type: Boolean,
         default: false
@@ -79,6 +82,11 @@
           // avoid passing the observer
           this.onChange(JSON.parse(JSON.stringify(this.tags)))
         }
+      },
+      tagInput () {
+        if (this.onInput) {
+      		this.onInput(this.newTag)
+        }
       }
     }
   }
@@ -91,7 +99,7 @@
       <span>{{ tag }}</span>
       <a v-if="!readOnly" @click.prevent.stop="remove(index)" class="remove"></a>
     </span>
-    <input v-if="!readOnly" v-bind:placeholder="placeholder" type="text" v-model="newTag" v-on:keydown.delete.stop="removeLastTag()" v-on:keydown.enter.188.tab.prevent.stop="addNew(newTag)" class="new-tag"/>
+    <input v-if="!readOnly" v-bind:placeholder="placeholder" type="text" v-model="newTag" v-on:keydown.delete.stop="removeLastTag()" v-on:keydown.enter.188.tab.prevent.stop="addNew(newTag)" v-on:keyup="tagInput()" class="new-tag"/>
   </div>
 
 </template>
