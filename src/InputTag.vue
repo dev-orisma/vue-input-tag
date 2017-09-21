@@ -17,6 +17,10 @@
         type: Array,
         default: () => []
       },
+      tagsUpdate: {
+        type: String,
+        default: ''
+      },
       placeholder: {
         type: String,
         default: ''
@@ -88,6 +92,11 @@
       		this.onInput(this.newTag)
         }
       }
+    },
+    watch:{
+    	tagsUpdate: function(){
+    		this.newTag = this.tagsUpdate
+    	}
     }
   }
 </script>
