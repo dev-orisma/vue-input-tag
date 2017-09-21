@@ -17,6 +17,10 @@
         type: Array,
         default: () => []
       },
+      tagsUpdate: {
+        type: String,
+        default: ''
+      },
       placeholder: {
         type: String,
         default: ''
@@ -95,7 +99,6 @@
 
       tagInput (e) {
       	var _this = this
-      	var pos = e.selectionEnd;
       	if(e.key == "ArrowUp"){
       		// _this.upSuggest()
       		this.resetActiveSuggest()
@@ -106,7 +109,6 @@
       		}
       		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
       		this.newTag = this.listElement[this.listIndex].innerText
-      		e.selectionStart = pos; e.selectionEnd = pos;
       	}else if(e.key == "ArrowDown"){
       		// _this.downSuggest()
       		this.resetActiveSuggest()
@@ -117,7 +119,6 @@
       		}
       		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
       		this.newTag = this.listElement[this.listIndex].innerText
-      		e.selectionStart = pos; e.selectionEnd = pos;
       	}else if(e.key == "ArrowRight"){
 
       	}else if(e.key == "ArrowLeft"){
@@ -155,6 +156,11 @@
 				this.listElement[key].setAttribute('class', 'suggest-tag-list-item');
 			}
 		}
+    },
+    watch:{
+    	tagsUpdate: function(){
+    		this.newTag = this.tagsUpdate
+    	}
     }
   }
 </script>
