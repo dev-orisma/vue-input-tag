@@ -17,15 +17,14 @@
         type: Array,
         default: () => []
       },
-      tagsUpdate: {
-        type: String,
-        default: ''
-      },
       placeholder: {
         type: String,
         default: ''
       },
       onChange: {
+        type: Function
+      },
+      onFetch: {
         type: Function
       },
       onInput: {
@@ -43,7 +42,12 @@
 
     data () {
       return {
-        newTag: ''
+        newTag: '',
+        suggest: {},
+        showSuggestTag: false,
+        listLength: 0,
+        listIndex: -1,
+        listElement: {},
       }
     },
 
@@ -59,6 +63,7 @@
           this.tagChange()
         }
         this.newTag = ''
+        this.tagHide()
       },
 
       validateIfNeeded (tagValue) {
@@ -87,16 +92,69 @@
           this.onChange(JSON.parse(JSON.stringify(this.tags)))
         }
       },
-      tagInput () {
-        if (this.onInput) {
-      		this.onInput(this.newTag)
-        }
-      }
-    },
-    watch:{
-    	tagsUpdate: function(){
-    		this.newTag = this.tagsUpdate
-    	}
+
+      tagInput (e) {
+      	var _this = this
+      	var pos = e.selectionEnd;
+      	if(e.key == "ArrowUp"){
+      		// _this.upSuggest()
+      		this.resetActiveSuggest()
+      		if(this.listIndex <= 0){
+      			this.listIndex = 0
+      		}else{
+      			this.listIndex = this.listIndex - 1
+      		}
+      		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
+      		this.newTag = this.listElement[this.listIndex].innerText
+      		e.selectionStart = pos; e.selectionEnd = pos;
+      	}else if(e.key == "ArrowDown"){
+      		// _this.downSuggest()
+      		this.resetActiveSuggest()
+      		if(this.listIndex == this.listLength){
+      			this.listIndex = this.listLength
+      		}else{
+      			this.listIndex = this.listIndex + 1
+      		}
+      		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
+      		this.newTag = this.listElement[this.listIndex].innerText
+      		e.selectionStart = pos; e.selectionEnd = pos;
+      	}else if(e.key == "ArrowRight"){
+
+      	}else if(e.key == "ArrowLeft"){
+
+      	}else{
+	  		_this.tagHide()
+	      	_this.suggest = {};
+	  		this.onFetch(this.newTag,function(list){
+	  			_this.listLength = list.length - 1
+	  			_this.listIndex = -1
+	  			if(list.length > 0){
+	  				_this.suggest = list;
+	  				_this.tagShow()
+	  				_this.getListSuggest();
+	  			}
+	  		})
+      	}
+      },
+		tagShow(){
+			this.showSuggestTag = true
+			 setTimeout(() => document.addEventListener('click',this.tagHide), 0);
+		},
+		tagHide(){
+			this.showSuggestTag = false
+			 document.removeEventListener('click',this.tagHide);
+		},
+		getListSuggest(){
+			var cusid_ele = document.getElementsByClassName('suggest-tag-list-item');
+			for (var i = 0; i < cusid_ele.length; ++i) {
+			    this.listElement[i] = cusid_ele[i];
+			}
+		},
+		resetActiveSuggest(){
+			for (var key in this.listElement) {
+				this.listElement[key].setAttribute('class', 'suggest-tag-list-item');
+			}
+		}
     }
   }
 </script>
@@ -108,13 +166,58 @@
       <span>{{ tag }}</span>
       <a v-if="!readOnly" @click.prevent.stop="remove(index)" class="remove"></a>
     </span>
-    <input v-if="!readOnly" v-bind:placeholder="placeholder" type="text" v-model="newTag" v-on:keydown.delete.stop="removeLastTag()" v-on:keydown.enter.188.tab.prevent.stop="addNew(newTag)" v-on:keyup="tagInput()" class="new-tag"/>
+    <input v-if="!readOnly" v-bind:placeholder="placeholder" type="text" v-model="newTag" v-on:keydown.delete.stop="removeLastTag()" v-on:keydown.enter.188.tab.prevent.stop="addNew(newTag)" v-on:keyup="tagInput" class="new-tag"/>
+    <div id="suggest-tag" v-if="showSuggestTag == true">
+    	<ul id="suggest-tag-list">
+    		<li class="suggest-tag-list-item" v-on:click="addNew(item_tag.title)" v-for="item_tag of suggest">
+    			<span>{{item_tag.title}}</span>
+    		</li>
+    	</ul>
+    </div>
   </div>
 
 </template>
 
 <style>
+	#suggest-tag{
+	    background-color: #fff;
+	    border: 1px solid #E0E0E0;
+	    padding: 6px 0;
+	    border-radius: 2px;
+	    box-sizing: border-box;
+		padding: 0;
+	    max-height: 250px;
+	    overflow: scroll;
+	    width: 100%;
+	    position: absolute;
+	    z-index: 2;
+	    top: 39px;
+	    left: 0px;
+	}
+	#suggest-tag #suggest-tag-list{
+	    margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	#suggest-tag #suggest-tag-list	.suggest-tag-list-item{
+		position: relative;
+	    font-size: 14px;
+	    line-height: 16px;
+	    border-bottom: 1px solid rgba(136,138,163,.3);
+	    box-sizing: border-box;
+	    cursor: pointer;
+	    outline: none;
+    	font-size: 20px!important;
+	    line-height: 28px!important;
+	    padding: 5px 15px!important;
+	}
 
+	#suggest-tag #suggest-tag-list	.suggest-tag-list-item:hover{
+		background: rgba(135,138,163,.1);
+	}
+	#suggest-tag #suggest-tag-list	.suggest-tag-list-item.active{
+		background: rgba(135,138,163,.1);
+	}
   .vue-input-tag-wrapper {
     background-color: #fff;
     border: 1px solid #ccc;
