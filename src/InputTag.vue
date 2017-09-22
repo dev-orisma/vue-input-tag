@@ -100,25 +100,19 @@
       tagInput (e) {
       	var _this = this
       	if(e.key == "ArrowUp"){
-      		// _this.upSuggest()
-      		this.resetActiveSuggest()
       		if(this.listIndex <= 0){
       			this.listIndex = 0
       		}else{
       			this.listIndex = this.listIndex - 1
       		}
-      		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
-      		this.newTag = this.listElement[this.listIndex].innerText
+      		this.setActiveSuggest(this.listIndex)
       	}else if(e.key == "ArrowDown"){
-      		// _this.downSuggest()
-      		this.resetActiveSuggest()
       		if(this.listIndex == this.listLength){
       			this.listIndex = this.listLength
       		}else{
       			this.listIndex = this.listIndex + 1
       		}
-      		this.listElement[this.listIndex].setAttribute('class', 'suggest-tag-list-item active');
-      		this.newTag = this.listElement[this.listIndex].innerText
+      		this.setActiveSuggest(this.listIndex)
       	}else if(e.key == "ArrowRight"){
 
       	}else if(e.key == "ArrowLeft"){
@@ -132,7 +126,6 @@
 	  			if(list.length > 0){
 	  				_this.suggest = list;
 	  				_this.tagShow()
-	  				_this.getListSuggest();
 	  			}
 	  		})
       	}
@@ -145,24 +138,21 @@
 			this.showSuggestTag = false
 			 document.removeEventListener('click',this.tagHide);
 		},
-		getListSuggest(){
-			var cusid_ele = document.getElementsByClassName('suggest-tag-list-item');
-			for (var i = 0; i < cusid_ele.length; ++i) {
-			    this.listElement[i] = cusid_ele[i];
-			}
-		},
-		resetActiveSuggest(){
-			for (var key in this.listElement) {
-				this.listElement[key].setAttribute('class', 'suggest-tag-list-item');
-			}
+		setActiveSuggest(index){
+			var _this = this
+			var elm = document.getElementsByClassName('suggest-tag-list-item');
+			var count = 0
+			Array.prototype.forEach.call(elm, function(el) {
+			    if(count == index){
+			    	el.className = 'suggest-tag-list-item active'
+			    	_this.newTag = el.innerText
+			    }else{
+			    	el.className = 'suggest-tag-list-item'
+			    }
+			    count++
+			});
 		}
-    },
-    watch:{
-    	tagsUpdate: function(){
-    		this.newTag = this.tagsUpdate
-    	}
-    }
-  }
+    }  }
 </script>
 
 <template>
